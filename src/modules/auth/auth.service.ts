@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
-//import { UserService } from "../user/user.service"; // injete o módulo de user
-import { SignupDto } from "./models/signup.dto";
-import { LoginDto } from "./models/login.dto";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { UserService } from '../../modules/user/user.service'; // injete o módulo de user
+import { SignupDto } from './models/signup.dto';
+import { LoginDto } from './models/login.dto';
+import { UserRole } from '../user/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -30,8 +31,8 @@ export class AuthService {
         email: profile.email,
         name: profile.name,
         avatar: profile.avatar,
-        password: null, // opcional
-        role: "CLIENT", // padrão
+        password: profile.password,
+        role: UserRole.CLIENT,
       });
     }
 
@@ -40,15 +41,19 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.userService.findByEmail(dto.email);
-    if (!user) throw new UnauthorizedException("Usuário não encontrado");
+    if (!user) throw new UnauthorizedException('Usuário não encontrado');
+
+    if (!user.password) {
+      throw new UnauthorizedException('Usuário não possui senha cadastrada (login social)');
+    }
 
     const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException("Senha incorreta");
+    if (!isMatch) throw new UnauthorizedException('Senha incorreta');
 
     return this.generateToken(user);
   }
 
-  async generateToken(user: unknown) {
+  generateToken(user: any) {
     const payload = { sub: user._id, email: user.email, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
