@@ -14,5 +14,4 @@ export class ProfessionalCategory {
 
 export const ProfessionalCategorySchema = SchemaFactory.createForClass(ProfessionalCategory);
 
-// busca textual simples
 ProfessionalCategorySchema.index({ name: 'text' });
