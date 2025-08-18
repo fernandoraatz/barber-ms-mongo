@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { QueryUsersDto } from './dto/query-user.dto';
 
 @Injectable()
 export class UserService {
@@ -33,7 +34,31 @@ export class UserService {
     return updated;
   }
 
-  async remove(id: string): Promise<void> {
-    await this.userModel.findByIdAndDelete(id);
+  async findAll(query: QueryUsersDto) {
+    const { q, role, page = 1, limit = 10 } = query;
+
+    const filter: any = {};
+    if (q) {
+      filter.$or = [
+        { name: { $regex: q, $options: 'i' } },
+        { email: { $regex: q, $options: 'i' } },
+      ];
+    }
+    if (role) filter.role = role;
+
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      this.userModel.find(filter).skip(skip).limit(limit).exec(),
+      this.userModel.countDocuments(filter).exec(),
+    ]);
+
+    return { items, total, page, limit };
+  }
+
+  async remove(id: string) {
+    const deleted = await this.userModel.findByIdAndDelete(id).exec();
+    if (!deleted) throw new NotFoundException('Usuário não encontrado');
+    return { ok: true };
   }
 }
