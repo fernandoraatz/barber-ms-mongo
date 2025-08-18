@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { AuthModule, UserModule, ProfessionalModule } from './modules';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServiceModule } from './modules/service/service.module';
+import { CategoryModule } from './modules/category/category.module';
+import { ProfessionalScheduleModule } from './modules/professional-schedule/professional-schedule.module';
+import { AppointmentModule } from './modules/appointment/appointment.module';
 
 @Module({
   imports: [
@@ -10,6 +13,9 @@ import { ServiceModule } from './modules/service/service.module';
     UserModule,
     ProfessionalModule,
     ServiceModule,
+    CategoryModule,
+    ProfessionalScheduleModule,
+    AppointmentModule,
   ],
   controllers: [],
   providers: [],
