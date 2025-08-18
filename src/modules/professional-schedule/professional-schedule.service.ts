@@ -7,7 +7,6 @@ import {
 } from './schemas/professional-schedule.schema';
 import { CreateScheduleSegmentDto } from './dto/create-segment.dto';
 import { UpdateScheduleSegmentDto } from './dto/update-segment.dto';
-import { QuerySlotsDto } from './dto/query-segment.dto';
 
 function toMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(':').map(Number);
@@ -73,7 +72,13 @@ export class ProfessionalScheduleService {
   }
 
   async findAllByProfessional(professionalId: string) {
-    return this.scheduleModel.find({ professionalId }).sort({ weekday: 1, startTime: 1 }).exec();
+    if (!Types.ObjectId.isValid(professionalId)) {
+      throw new BadRequestException('professionalId inválido');
+    }
+    return this.scheduleModel
+      .find({ professionalId: new Types.ObjectId(professionalId) })
+      .sort({ weekday: 1, startTime: 1 })
+      .exec();
   }
 
   async update(id: string, dto: UpdateScheduleSegmentDto) {
@@ -118,22 +123,30 @@ export class ProfessionalScheduleService {
     return this.findAllByProfessional(professionalId);
   }
 
-  // Slots diários (sem considerar agendamentos ainda; Appointments fará o filtro dos já ocupados)
-  async dailySlots(professionalId: string, query: QuerySlotsDto, timezone = 'America/Sao_Paulo') {
-    const slotMinutes = query.slotMinutes ?? 60;
+  async dailySlots(
+    professionalId: string,
+    query: { date: string; slotMinutes?: number; skipPast?: 'true' | 'false' },
+  ) {
+    if (!Types.ObjectId.isValid(professionalId))
+      throw new BadRequestException('professionalId inválido');
+    const profOID = new Types.ObjectId(professionalId);
 
-    // Descobrir weekday da data
-    const date = new Date(query.date);
-    // Ajuste simples: usamos getUTCDay/getDay conforme necessidade; para simplicidade:
+    if (!query?.date) throw new BadRequestException('date é obrigatório (YYYY-MM-DD ou ISO)');
+    const raw = query.date.length === 10 ? `${query.date}T00:00:00` : query.date;
+    const date = new Date(raw);
+    if (isNaN(date.getTime())) throw new BadRequestException('date inválido');
+
+    const slotMinutes = Number.isFinite(query?.slotMinutes) ? Math.floor(query.slotMinutes!) : 60;
+    if (!(slotMinutes > 0)) throw new BadRequestException('slotMinutes deve ser > 0');
+
     const weekday = date.getDay(); // 0..6
-
-    // Buscar segmentos ativos
     const segments = await this.scheduleModel
-      .find({ professionalId, weekday, active: true })
+      .find({ professionalId: profOID, weekday, active: true })
       .sort({ startTime: 1 })
       .lean()
       .exec();
 
+    // 5) Gerar slots
     const slots: string[] = [];
     for (const seg of segments) {
       const s = toMinutes(seg.startTime);
@@ -143,14 +156,13 @@ export class ProfessionalScheduleService {
       }
     }
 
-    // Filtrar slots no passado se a data é "hoje"
+    // 6) Opcional: filtrar horários passados (se a data é hoje)
     if (query.skipPast === 'true') {
       const now = new Date();
-      const isSameDay =
-        now.toISOString().slice(0, 10) === new Date(query.date).toISOString().slice(0, 10);
-      if (isSameDay) {
-        const currentMins = now.getHours() * 60 + now.getMinutes();
-        return slots.filter(h => toMinutes(h) > currentMins);
+      const sameDay = now.toISOString().slice(0, 10) === date.toISOString().slice(0, 10);
+      if (sameDay) {
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        return slots.filter(h => toMinutes(h) > nowMins);
       }
     }
 

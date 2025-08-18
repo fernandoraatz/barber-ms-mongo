@@ -13,7 +13,6 @@ import {
 import { ProfessionalScheduleService } from './professional-schedule.service';
 import { CreateScheduleSegmentDto } from './dto/create-segment.dto';
 import { UpdateScheduleSegmentDto } from './dto/update-segment.dto';
-import { QuerySlotsDto } from './dto/query-segment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { UserRole } from '../user/schemas/user.schema';
@@ -23,7 +22,7 @@ import { ProfessionalService } from '../professional/professional.service';
 export class ProfessionalScheduleController {
   constructor(
     private readonly scheduleService: ProfessionalScheduleService,
-    private readonly professionalService: ProfessionalService, // para descobrir o professionalId do user
+    private readonly professionalService: ProfessionalService,
   ) {}
 
   // -------- ADMIN CRUD --------
@@ -82,7 +81,10 @@ export class ProfessionalScheduleController {
 
   // -------- Slots por dia (público ou protegido, você decide; aqui deixo público) --------
   @Get(':professionalId/slots')
-  getDailySlots(@Param('professionalId') professionalId: string, @Query() query: QuerySlotsDto) {
-    return this.scheduleService.dailySlots(professionalId, query);
+  getDaily(
+    @Param('professionalId') professionalId: string,
+    @Query() q: { date: string; slotMinutes?: number; skipPast?: 'true' | 'false' },
+  ) {
+    return this.scheduleService.dailySlots(professionalId, q);
   }
 }

@@ -1,11 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types } from 'mongoose';
-import {
-  Professional,
-  ProfessionalDocument,
-  ProfessionalStatus,
-} from './schemas/professional.schema';
+import { Professional, ProfessionalDocument } from './schemas/professional.schema';
 import { CreateProfessionalDto } from './dto/create-professional.dto';
 import { UpdateProfessionalDto } from './dto/update-professional.dto';
 import { QueryProfessionalDto } from './dto/query-professional.dto';
