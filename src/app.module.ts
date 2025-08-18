@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule, UserModule, ProfessionalModule } from './modules';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ServiceModule } from './modules/service/service.module';
 
 @Module({
   imports: [
@@ -8,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     AuthModule,
     UserModule,
     ProfessionalModule,
+    ServiceModule,
   ],
   controllers: [],
   providers: [],

@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../../modules/user/user.service'; // injete o módulo de user
-import { SignupDto } from './models/signup.dto';
-import { LoginDto } from './models/login.dto';
+import { SignupDto } from './dto/signup.dto';
+import { LoginDto } from './dto/login.dto';
 import { UserRole } from '../user/schemas/user.schema';
 
 @Injectable()
