@@ -6,6 +6,7 @@ export type UserDocument = User & Document;
 export enum UserRole {
   CLIENT = 'CLIENT',
   PROFESSIONAL = 'PROFESSIONAL',
+  ADMIN = 'ADMIN',
 }
 
 @Schema({ timestamps: true })

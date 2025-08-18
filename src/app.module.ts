@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AuthModule, UserModule } from './modules';
+import { AuthModule, UserModule, ProfessionalModule } from './modules';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forRoot(process.env.DATABASE_URL ?? 'mongodb://localhost:27017/barbershop'),
     AuthModule,
     UserModule,
+    ProfessionalModule,
   ],
   controllers: [],
   providers: [],
