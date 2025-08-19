@@ -4,15 +4,14 @@ import { HydratedDocument, Types } from 'mongoose';
 export type AppointmentDocument = HydratedDocument<Appointment>;
 
 export enum AppointmentStatus {
-  SCHEDULED = 'SCHEDULED',
-  COMPLETED = 'COMPLETED',
-  CANCELED = 'CANCELED',
+  SCHEDULED = 'SCHEDULED', // Agendado
+  COMPLETED = 'COMPLETED', // Finalizado
 }
 
 @Schema({ timestamps: true, collection: 'appointments' })
 export class Appointment {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
-  userId: Types.ObjectId; // cliente
+  userId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Professional', required: true, index: true })
   professionalId: Types.ObjectId;
@@ -21,10 +20,10 @@ export class Appointment {
   serviceId: Types.ObjectId;
 
   @Prop({ type: Date, required: true, index: true })
-  startAt: Date; // ISO
+  startAt: Date; // UTC
 
   @Prop({ type: Date, required: true })
-  endAt: Date; // calculado pela duração do serviço
+  endAt: Date; // UTC (startAt + 60min)
 
   @Prop({
     type: String,
@@ -34,16 +33,12 @@ export class Appointment {
   })
   status: AppointmentStatus;
 
-  @Prop()
-  notes?: string;
-
-  @Prop()
-  cancelReason?: string;
+  @Prop() notes?: string;
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
 
-// Útil para bloquear duplicidade exata
+// evita duplo agendamento mesmo slot (enquanto status = SCHEDULED)
 AppointmentSchema.index(
   { professionalId: 1, startAt: 1 },
   { unique: true, partialFilterExpression: { status: 'SCHEDULED' } },

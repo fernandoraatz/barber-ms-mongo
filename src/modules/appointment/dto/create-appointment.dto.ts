@@ -1,4 +1,4 @@
-import { IsISO8601, IsMongoId, IsOptional, IsString } from 'class-validator';
+import { IsMongoId, IsOptional, IsString, Matches } from 'class-validator';
 
 export class CreateAppointmentDto {
   @IsMongoId()
@@ -7,9 +7,11 @@ export class CreateAppointmentDto {
   @IsMongoId()
   serviceId: string;
 
-  // Ex.: "2025-08-18T15:00:00-03:00" (recomendado já com TZ do cliente)
-  @IsISO8601()
-  startAtISO: string;
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  date: string; // "YYYY-MM-DD" (America/Sao_Paulo)
+
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+  time: string; // "HH:mm" (America/Sao_Paulo)
 
   @IsOptional()
   @IsString()

@@ -3,7 +3,7 @@ import { AuthModule, UserModule, ProfessionalModule } from './modules';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServiceModule } from './modules/service/service.module';
 import { CategoryModule } from './modules/category/category.module';
-import { ProfessionalScheduleModule } from './modules/professional-schedule/professional-schedule.module';
+import { ScheduleModule } from './modules/schedule/schedule.module';
 import { AppointmentModule } from './modules/appointment/appointment.module';
 
 @Module({
@@ -14,8 +14,8 @@ import { AppointmentModule } from './modules/appointment/appointment.module';
     ProfessionalModule,
     ServiceModule,
     CategoryModule,
-    ProfessionalScheduleModule,
     AppointmentModule,
+    ScheduleModule,
   ],
   controllers: [],
   providers: [],

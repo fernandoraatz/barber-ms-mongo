@@ -3,21 +3,18 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Appointment, AppointmentSchema } from './schemas/appointment.schema';
 import { AppointmentService } from './appointment.service';
 import { AppointmentController } from './appointment.controller';
-import { Professional, ProfessionalSchema } from '../professional/schemas/professional.schema';
 import { Service, ServiceSchema } from '../service/schemas/service.schema';
-import {
-  ProfessionalSchedule,
-  ProfessionalScheduleSchema,
-} from '../professional-schedule/schemas/professional-schedule.schema';
+import { Professional, ProfessionalSchema } from '../professional/schemas/professional.schema';
+import { ScheduleModule } from '../schedule/schedule.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Appointment.name, schema: AppointmentSchema },
-      { name: Professional.name, schema: ProfessionalSchema },
       { name: Service.name, schema: ServiceSchema },
-      { name: ProfessionalSchedule.name, schema: ProfessionalScheduleSchema },
+      { name: Professional.name, schema: ProfessionalSchema },
     ]),
+    ScheduleModule, // valida slots contra agenda
   ],
   controllers: [AppointmentController],
   providers: [AppointmentService],
