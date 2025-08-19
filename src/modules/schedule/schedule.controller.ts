@@ -15,7 +15,7 @@ export class ScheduleController {
     private readonly professionalService: ProfessionalService,
   ) {}
 
-  // ------ SETTINGS (ADMIN) ------
+  // ------ SETTINGS (ADMIN) ------ Cadastrar agenda, e visulizar agenda de um profissional
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
   @Post(':professionalId/settings')
@@ -30,7 +30,7 @@ export class ScheduleController {
     return this.scheduleService.getSettings(professionalId);
   }
 
-  // ------ BLACKOUTS (ADMIN) ------
+  // ------ BLACKOUTS (ADMIN) ------ Cadastrar blackout, dias ou horario que o funcionario nao vai poder vir
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
   @Post('blackouts')
@@ -45,7 +45,7 @@ export class ScheduleController {
     return this.scheduleService.removeBlackout(id);
   }
 
-  // ------ CONSULTAS (PROFISSIONAL) ------
+  // ------ CONSULTAS (PROFISSIONAL) ------  Profissional consegue ver sua agenda
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.PROFESSIONAL)
   @Get('me/month-availability')
@@ -62,7 +62,7 @@ export class ScheduleController {
     return this.scheduleService.daySlots(prof._id.toString(), date);
   }
 
-  // ------ CONSULTAS (PÚBLICO/APP) ------
+  // ------ CONSULTAS (PÚBLICO/APP) ------  Usuário pode ver a agenda do profissional
   @Get(':professionalId/month-availability')
   monthAvailability(
     @Param('professionalId') professionalId: string,

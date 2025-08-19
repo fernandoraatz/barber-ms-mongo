@@ -113,7 +113,22 @@ export class ScheduleService {
   }
 
   async getSettings(professionalId: string) {
-    const s = await this.settingsModel.findOne({ professionalId }).lean().exec();
+    const oid = Types.ObjectId.isValid(professionalId) ? new Types.ObjectId(professionalId) : null;
+
+    // 1) tenta como ObjectId (modelo correto)
+    let s = await this.settingsModel
+      .findOne({ professionalId: oid ?? professionalId })
+      .lean()
+      .exec();
+
+    // 2) fallback: se não achou e o doc antigo tiver string
+    if (!s && oid) {
+      s = await this.settingsModel
+        .findOne({ professionalId: professionalId as any })
+        .lean()
+        .exec();
+    }
+
     if (!s) throw new NotFoundException('Configuração de agenda não encontrada');
     return s;
   }
